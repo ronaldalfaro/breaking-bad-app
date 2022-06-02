@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CharactersController;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\PasswordController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -14,10 +16,6 @@ use App\Http\Controllers\UsersController;
 |
 */
 
-/*Route::get('/', function () {
-    //return view('welcome');
-   return Route::resource('characters.home', \App\Http\Controllers\CharactersController::class);
-})->name('/');*/
 Route::get('/', [CharactersController::class, 'home'])->name('/');
 
 Route::middleware([
@@ -32,6 +30,7 @@ Route::middleware([
 
 Route::group(['middleware' => 'auth'], function () {
     Route::resource('characters', CharactersController::class);
-
-    Route::resource('users', \App\Http\Controllers\UsersController::class);
+    Route::resource('users', UsersController::class);
+    Route::get('password/{id}/edit', [PasswordController::class, 'edit'])->name('password.edit');
+    Route::put('password/update/{id}', [PasswordController::class, 'update'])->name('password.update');
 });
