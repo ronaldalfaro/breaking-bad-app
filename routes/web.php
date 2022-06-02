@@ -1,7 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\CharactersController;
+use App\Http\Controllers\UsersController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -13,9 +14,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('/');
+/*Route::get('/', function () {
+    //return view('welcome');
+   return Route::resource('characters.home', \App\Http\Controllers\CharactersController::class);
+})->name('/');*/
+Route::get('/', [CharactersController::class, 'home'])->name('/');
 
 Route::middleware([
     'auth:sanctum',
@@ -25,10 +28,10 @@ Route::middleware([
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
-    Route::get('/users', function () {
-        return view('users');
-    })->name('users');
-    Route::get('/characters', function () {
-        return view('characters');
-    })->name('characters');
+});
+
+Route::group(['middleware' => 'auth'], function () {
+    Route::resource('characters', CharactersController::class);
+
+    Route::resource('users', \App\Http\Controllers\UsersController::class);
 });
