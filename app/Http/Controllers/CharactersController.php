@@ -7,10 +7,10 @@ use Illuminate\Http\Request;
 use App\Models\Character;
 use App\Http\Requests\StoreCharacterRequest;
 use App\Http\Requests\UpdateCharacterRequest;
+use App\Utils\ExternalData as ExternalData; 
 
 class CharactersController extends Controller
 {
-    protected $BREAKING_BAD_API_URL = "https://www.breakingbadapi.com/api/characters";
     /**
      * Display a listing of the resource.
      *
@@ -41,7 +41,8 @@ class CharactersController extends Controller
      */
     public function store(StoreCharacterRequest $request)
     {
-        $requestData = $this->retrieveData($request);
+        $externalData = new ExternalData();
+        $requestData = $externalData->retrieveData($request);
 
         if($request->validated()){
             Character::create($requestData);
@@ -81,8 +82,12 @@ class CharactersController extends Controller
      */
     public function update(UpdateCharacterRequest $request, Character $character)
     {
+        $externalData = new ExternalData();
+        $requestData = $externalData->retrieveData($request);
 
-        $character->update($request->validated());
+        if($request->validated()){
+            $character->update($requestData);
+        }
 
         return redirect()->route('characters.index');
     }
@@ -105,24 +110,5 @@ class CharactersController extends Controller
         $characters = Character::all();
 
         return view('characters.home', compact('characters'));
-    }
-
-    private function retrieveData(StoreCharacterRequest $request){
-        $response = Http::get($this->BREAKING_BAD_API_URL, ['name' => $request->name]);
-        $requestData = $request->all();
-        if($response->successful()){
-            $charactersArray = $response->json($key = null);
-            if(is_array($charactersArray) && !empty($charactersArray)){
-                $firstResult = $response[0];
-                          
-                $requestData["name"] = $firstResult['name'];
-                $requestData = array_merge($requestData, ['nickname' => $firstResult['nickname'], 'img' => $firstResult['img'], 'category' => $firstResult['category']]);
-            }else{
-                $requestData = array_merge($requestData, ['nickname' => "No hay datos", 'img' => "No hay datos", 'category' => "No hay datos"]);
-            }
-            
-        }
-
-        return $requestData;
     }
 }

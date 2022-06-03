@@ -7,17 +7,18 @@ use App\Http\Controllers\Api\BaseController as BaseController;
 use Validator;
 use App\Models\Character;
 use App\Http\Resources\Character as CharacterResource;
+use App\Utils\ExternalData as ExternalData; 
    
 class CharactersController extends BaseController
 {
     public function index()
     {
         $characters = Character::all();
-        return $this->sendResponse(CharacterResource::collection($characters), 'Posts fetched.');
+        return $this->sendResponse(CharacterResource::collection($characters), 'Personajes consultados.');
     }
     
     public function store(Request $request)
-    {
+    {  
         $input = $request->all();
         $validator = Validator::make($input, [
             'name' => 'required|string|min:3',
@@ -25,7 +26,11 @@ class CharactersController extends BaseController
         if($validator->fails()){
             return $this->sendError($validator->errors());       
         }
-        $character = Character::create($input);
+
+        $externalData = new ExternalData();
+        $requestData = $externalData->retrieveData($request);
+
+        $character = Character::create($requestData);
         return $this->sendResponse(new CharacterResource($character), 'Personaje creado.');
     }
    
@@ -47,9 +52,10 @@ class CharactersController extends BaseController
         if($validator->fails()){
             return $this->sendError($validator->errors());       
         }
-        $character->title = $input['name'];
-        //$character->description = $input['description'];
-        $character->save();
+
+        $externalData = new ExternalData();
+        $requestData = $externalData->retrieveData($request);
+        $character->update($requestData);
         
         return $this->sendResponse(new CharacterResource($character), 'Personaje actualizado.');
     }
