@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CharactersController;
+use App\Http\Controllers\Api\UsersController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,7 +19,11 @@ use App\Http\Controllers\Api\CharactersController;
 
 Route::middleware('auth:sanctum')->group( function () {
     Route::resource('characters', CharactersController::class);
+    Route::resource('users', UsersController::class);
 });
 
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
+
+Route::get('characters', [CharactersController::class, 'index']);
+Route::get('users', [UsersController::class, 'index']);
