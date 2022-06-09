@@ -47,4 +47,18 @@ class AuthController extends BaseController
 
         return $this->sendResponse($success, 'Usuario logueado correctamente');
     }
+
+    public function logout(Request $request)
+    {
+        $authUser = $request->user();    
+        if($authUser->currentAccessToken()){
+            $authUser->currentAccessToken()->delete();
+
+            $success['access_token'] = null;
+
+            return $this->sendResponse($success, 'Sesión cerrada correctamente');
+        }else{
+            return $this->sendError('Unauthorized.', ['error'=>'Unauthorized']);
+        }
+    }
 }
